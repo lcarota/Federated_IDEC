@@ -1,10 +1,13 @@
 from tensorflow.keras.datasets import mnist
 import numpy as np
+import pandas as pd
 import random 
+import tensorflow as tf
 
 
 def load_mnist(binary_threshold=None):
     
+    print('load mnist')
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
     x = np.concatenate((x_train, x_test))
     y = np.concatenate((y_train, y_test))
@@ -16,40 +19,67 @@ def load_mnist(binary_threshold=None):
     return x, y 
 
 
+def load_euromds():
+    
+    print('load euromds')
+    df_euromds = pd.read_csv('dataFrame_X_forCox_20211209_V3_imputed_X.csv', delimiter=';',dtype=object) 
+    x = df_euromds.loc[:, 'ASXL1':'Comorbidity']
+    x = x.convert_dtypes('float')
+    x=np.array(x)
+    y = pd.DataFrame(df_euromds, columns=['X0','X1','X2','X3','X4','X5',])
+    y = y.convert_dtypes('float')
+    y=np.array(y)
+    print(y)
+    return x,y
+
 
 def create_federated_dataset(x,y,
-                             num_clients=8,
-                             samples_per_cluster_per_client=300,
+                             num_clients=1,
+                             samples_per_cluster_per_client=100,
                              seed=0):
     
-    samples_per_cluster = int(samples_per_cluster_per_client*num_clients)
-    n_clusters = len(np.unique(y))
-    index = np.array([])
-    index_fed = []
-    for i in range(n_clusters):
+    # Eventualmente da cambiare con divisione random tra train e target
+#    samples_per_cluster = int(samples_per_cluster_per_client*num_clients)
+     n_clusters = 6
+#    index = np.array([])
+#    index_fed = []
+#    for i in range(n_clusters):
         
-        index_i = np.argwhere(y==i)
-        index_i = index_i.reshape((1,len(index_i)))[0]
-        index_i = index_i[0:samples_per_cluster]
-        #index = np.concatenate([index,index_i])
-        #index = index.astype(int)
-        index_i_splitted = np.split(index_i,num_clients)
-        index_i_splitted = list(map(list,index_i_splitted))
-        index_fed.append(index_i_splitted)
-    #y_centr = y[index]
-    #x_centr = x[index]
+#        index_i = np.argwhere(y==i) #seleziona i gruppi con gli stessi label
+#        index_i = index_i.reshape((1,len(index_i)))[0]
+#        index_i = index_i[0:samples_per_cluster]
+#        #index = np.concatenate([index,index_i])
+#        #index = index.astype(int)
+#        index_i_splitted = np.split(index_i,num_clients)
+#        index_i_splitted = list(map(list,index_i_splitted))
+#        index_fed.append(index_i_splitted)
+#    #y_centr = y[index]
+#    #x_centr = x[index]
     
-    index_fed = np.array(index_fed)
-    x_fed = []
-    y_fed = []
-    for i in range(num_clients):
-        index_fed_i = index_fed[:,i]
-        index_fed_i = index_fed_i.reshape((1,samples_per_cluster_per_client*n_clusters))[0]
-        random.Random(seed).shuffle(index_fed_i)
+#    index_fed = np.array(index_fed)
+     x_fed = []
+     y_fed = []
+#    for i in range(num_clients):
+#        index_fed_i = index_fed[:,i]
+#        index_fed_i = index_fed_i.reshape((1,samples_per_cluster_per_client*n_clusters))[0]
+#        random.Random(seed).shuffle(index_fed_i)
+#        x_fed.append(x[index_fed_i])
+#        y_fed.append(y[index_fed_i])
+
+     rand_indexes= np.arange(len(x))
+     np.random.seed(seed)
+     np.random.shuffle(rand_indexes)
+     print(num_clients)
+     index_splitted = np.split(rand_indexes,num_clients)
+     index_splitted = list(map(list,index_splitted))
+    
+    
+     for i in range(num_clients):
+        index_fed_i = index_splitted[i]
         x_fed.append(x[index_fed_i])
         y_fed.append(y[index_fed_i])
-        
-    return x_fed,y_fed
+    
+     return x_fed,y_fed
 
 
 

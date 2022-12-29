@@ -1,7 +1,7 @@
 import os
 #os.chdir('C:\\Users\\silvi\\Desktop\\Fisica\\TESI\\AAAAA_clustering_methods\\federated_clustering')
 import IDEC
-from dataset import load_mnist,create_federated_dataset,missing_data_distribution,from_fed_to_centr
+from dataset import load_mnist,load_euromds,create_federated_dataset,missing_data_distribution,from_fed_to_centr
 from typing import List
 import csv
 import tensorflow.keras as keras
@@ -22,17 +22,17 @@ import argparse
 
 parser = argparse.ArgumentParser(description='federated_idec',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--setting', default='federated', choices=['centralized','federated'])
-parser.add_argument('--out', default='prova')
-parser.add_argument('--dataset',default='mnist',choices=['mnist','eurodms'])
+parser.add_argument('--setting', default='centralized', choices=['centralized','federated'])
+parser.add_argument('--out', default='results_sm')
+parser.add_argument('--dataset',default='mnist',choices=['mnist','euromds'])
 parser.add_argument('--n_clusters', default=10, type=int)
-parser.add_argument('--batch_size', default=32, type=int)
+parser.add_argument('--batch_size', default=256, type=int)
 parser.add_argument('--samples_per_cluster_per_client', default=300, type=int)
-parser.add_argument('--nan', default=False)
+parser.add_argument('--nan', default=False) #non introduce dati mancanti
 parser.add_argument('--nan_fraction', default=0.375,type=float)
-parser.add_argument('--nan_dim', default=0, type=int) 
+parser.add_argument('--nan_dim', default=0, type=int) #anche in una delle 784
 parser.add_argument('--client_with_missing_data',default=8, help='if list, it is the list of clients with missing data; if int, it is the number of clients with missing data (randomly chosen)')
-parser.add_argument('--nan_substitute',default='mean')
+parser.add_argument('--nan_substitute',default='mean')#fa la media dove ci sono dati mancanti
 parser.add_argument('--seed',default=0)
 parser.add_argument('--client',default=None,help='only in centralized setting; if not None, it identifies in which client the centralized method has to be applied')
 
@@ -40,13 +40,14 @@ parser.add_argument('--client',default=None,help='only in centralized setting; i
 parser.add_argument('--phase',default='complete',choices=['complete','ae','idec'])
 parser.add_argument('--num_rounds_ae',default=20,type=int)
 parser.add_argument('--num_rounds_idec',default=10,type=int)
-parser.add_argument('--num_clients',default=8,type=int)
-parser.add_argument('--strategy',default='fedavg',choices=['fedavg','fedadam','fedyogi'])
+parser.add_argument('--num_clients',default=1,type=int)
+parser.add_argument('--strategy',default='fedavg',choices=['fedavg','fedadam','fedyogi'])#per gli ultimi due modificare il training specifico, anche le stesse funzioni
 # pretraining parameters
 parser.add_argument('--ae_optimizer', default='sgd')
 parser.add_argument('--ae_epochs', default=150,type=int)
 # idec parameters
-parser.add_argument('--ae_weights', default=None)#'out/idec/federated/no_nan/750samples/server/ae_round_25_weights.h5')
+parser.add_argument('--ae_weights', default='ae_weights_first.h5')#per la fase di clustering servono per forza i pesi iniziali
+#'out/idec/federated/no_nan/750samples/server/ae_round_25_weights.h5')
 parser.add_argument('--idec_optimizer', default='sgd')
 parser.add_argument('--ae_loss_coeff', default=1, type=float, help='coefficient of reconstruction loss')
 parser.add_argument('--gamma', default=1, type=float, help='coefficient of clustering loss')
@@ -117,8 +118,11 @@ with open(out+'/config.json', 'w') as file:
     
 # load dataset
 # load binary mnist
-binary_threshold=0.5
-x,y = load_mnist(binary_threshold)
+#binary_threshold=0.5
+binary_threshold=None
+
+#x,y = load_mnist(binary_threshold)
+x,y = load_euromds()
 
 # modifications for federated setting
 x_fed,y_fed = create_federated_dataset(x,y,
