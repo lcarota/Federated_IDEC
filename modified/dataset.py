@@ -28,16 +28,22 @@ def load_euromds():
     x = x.reshape((x.shape[0], -1))
     #x = x.convert_dtypes('float')
     #x=np.array(x)
-    y = pd.DataFrame(df_euromds, columns=['X0','X1','X2','X3','X4','X5',])
+    #y = pd.DataFrame(df_euromds, columns=['X0','X1','X2','X3','X4','X5',])
+    #y = np.array(y)
+    #y = y.reshape((y.shape[0], -1))
+    
+    # uso gli score 
+    df_scores = pd.read_csv('/home/PERSONALE/francesco.casadei20/EUROMDS/Scores_forCox_20211209.csv')
+    y = df_scores.iloc[:,5] #MACRO
     y = np.array(y)
-    y = y.reshape((y.shape[0], -1))
-    y_new = y.copy()#
-    for i in np.arange(0, len(y), 1):#
-        y_new[i] = np.argmax(y[i])#
-    y = y_new[:,0]#
+    
+    #y_new = y.copy()#
+    #for i in np.arange(0, len(y), 1):#
+    #    y_new[i] = np.argmax(y[i])#
+    #y = y_new[:,0]#
     #y = y.convert_dtypes('float')
     #y=np.array(y)
-    print(y)
+    #print(y)
     return x,y
 
 
