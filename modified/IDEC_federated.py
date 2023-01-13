@@ -55,6 +55,9 @@ parser.add_argument('--cluster_method',default='kmeans',choices=['kmeans','SC'])
 parser.add_argument('--update_interval', default=None, type=int)
 parser.add_argument('--maxiter', default=12e4, type=int)
 parser.add_argument('--tol', default=0.000001, type=float)
+parser.add_argument('--ae_dim', default='500,500,2000,10', help='delimited list input', type = str)
+parser.add_argument('--dataset_path', default='/home/PERSONALE/francesco.casadei20/EUROMDS/', help='path of EUROMDS dataset', type=str)
+parser.add_argument('--labels', default='MACRO', choices=['MACRO','IPSS','IPSS-R','HDP'], help='true labels to use for clustering')
 
 
 args = parser.parse_args()
@@ -106,6 +109,11 @@ if idec_optimizer == 'adam':
     idec_optimizer = keras.optimizers.Adam(learning_rate=0.0001)
 
 #cid = args.cid
+ae_dim = args.ae_dim
+AE_dim = [int(item) for item in ae_dim.split(',')]
+dataset_path = args.dataset_path
+labels = args.labels
+
 
 import os
 if not os.path.exists(out):
@@ -122,13 +130,14 @@ with open(out+'/config.json', 'w') as file:
 binary_threshold=None
 
 #x,y = load_mnist(binary_threshold)
-x,y = load_euromds()
+x,y = load_euromds(path=dataset_path, label=labels)
 
 # modifications for federated setting
 x_fed,y_fed = create_federated_dataset(x,y,
                                        num_clients=num_clients,
                                        samples_per_cluster_per_client=samples_per_cluster_per_client)
 input_dim = len(x_fed[0][0])
+dims = [input_dim, AE_dim[0], AE_dim[1], AE_dim[2], AE_dim[3]]
 
 
 if setting == 'centralized':
@@ -156,7 +165,7 @@ if setting == 'centralized':
     
     
 
-    model = IDEC.IDEC(dims=[input_dim, 500, 500, 2000, 10],
+    model = IDEC.IDEC(dims=dims,#[input_dim, 500, 500, 2000, 10],
                  n_clusters=n_clusters,
                  alpha=1.0,
                  batch_size=batch_size,
@@ -245,7 +254,7 @@ if setting == 'federated':
         y_test = y_train.copy()
                    
         # pretraining
-        model = IDEC.IDEC(dims=[input_dim, 500, 500, 2000, 10], 
+        model = IDEC.IDEC(dims=dims,#[input_dim, 500, 500, 2000, 10], 
                         n_clusters=n_clusters, 
                         alpha=1.0,
                         batch_size=batch_size,
@@ -274,7 +283,7 @@ if setting == 'federated':
                 print(f"Saving round {rnd} weights...")
                 aggregated_weights : List[np.ndarray] = fl.common.parameters_to_ndarrays(weights_red)
                 
-                model_for_saving_weights = IDEC.IDEC(dims=[input_dim, 500, 500, 2000, 10], 
+                model_for_saving_weights = IDEC.IDEC(dims=dims,#[input_dim, 500, 500, 2000, 10], 
                         n_clusters=n_clusters, 
                         alpha=1.0,
                         batch_size=batch_size,
@@ -369,7 +378,7 @@ if setting == 'federated':
             os.makedirs(out+'/client'+str(cid))
             
         # KMeans application on latent space
-        model = IDEC.IDEC(dims=[input_dim, 500, 500, 2000, 10], 
+        model = IDEC.IDEC(dims=dims,#[input_dim, 500, 500, 2000, 10], 
                         n_clusters=n_clusters,
                         alpha=1.0,
                         batch_size=batch_size,
@@ -551,7 +560,7 @@ if setting == 'federated':
             os.makedirs(out+'/client'+str(cid))
             
         # clustering
-        model = IDEC.IDEC(dims=[input_dim, 500, 500, 2000, 10], 
+        model = IDEC.IDEC(dims=dims,#[input_dim, 500, 500, 2000, 10], 
                         n_clusters=n_clusters,
                         alpha=1.0,
                         batch_size=batch_size,
@@ -592,7 +601,7 @@ if setting == 'federated':
                 print(f"Saving round {rnd} weights...")
                 aggregated_weights : List[np.ndarray] = fl.common.parameters_to_ndarrays(weights_red)
                 
-                model_for_saving_weights = IDEC.IDEC(dims=[input_dim, 500, 500, 2000, 10], 
+                model_for_saving_weights = IDEC.IDEC(dims=dims,#[input_dim, 500, 500, 2000, 10], 
                         n_clusters=n_clusters,
                         alpha=1.0,
                         batch_size=batch_size,
