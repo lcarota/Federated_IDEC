@@ -21,32 +21,33 @@ def load_mnist(binary_threshold=None):
 
 def load_euromds(path, label):
     print('load euromds')
-    df_euromds = pd.read_csv(path+'dataFrame_Cox.csv', delimiter=';') 
+    df_euromds = pd.read_csv(path+'dataFrame_X_forCox_complete_imputed.csv', delimiter=';') 
     x = df_euromds.loc[:, 'ASXL1':'Comorbidity']
     x = np.array(x)
     x = x.reshape((x.shape[0], -1))
-    df_scores = pd.read_csv(path+'Scores_forCox_20211209.csv')
+    #df_scores = pd.read_csv(path+'Scores_forCox_20211209.csv')
+    df_scores = df_euromds.loc[:, 'MACRO':'IPSSR.risk.group']
     #x = x.convert_dtypes('float')
     #x=np.array(x)
-    if label == 'HDP':
-        y = pd.DataFrame(df_euromds, columns=['X0','X1','X2','X3','X4','X5',])
-        y = np.array(y)
-        y = y.reshape((y.shape[0], -1))
-        y_new = y.copy()#
-        for i in np.arange(0, len(y), 1):#
-            y_new[i] = np.argmax(y[i])#
-        y = y_new[:,0]#
-        y = y.convert_dtypes('float')
-        y=np.array(y)
+    #if label == 'HDP':
+    #    y = pd.DataFrame(df_euromds, columns=['X0','X1','X2','X3','X4','X5',])
+    #    y = np.array(y)
+    #    y = y.reshape((y.shape[0], -1))
+    #    y_new = y.copy()#
+    #    for i in np.arange(0, len(y), 1):#
+    #        y_new[i] = np.argmax(y[i])#
+    #    y = y_new[:,0]#
+    #    y = y.convert_dtypes('float')
+    #    y=np.array(y)
     # uso gli score 
-    elif label == 'MACRO':
-        y = df_scores.iloc[:,5] #MACRO
+    if label == 'MACRO':
+        y = df_scores.iloc[:,0] #MACRO
         y = np.array(y)
     elif label == 'IPSS':
-        y = df_scores.iloc[:,6] #IPSS
+        y = df_scores.iloc[:,2] #IPSS
         y = np.array(y)
     elif label == 'IPSS-R':
-        y = df_scores.iloc[:,8] #IPSS-R
+        y = df_scores.iloc[:,4] #IPSS-R
         y = np.array(y)
     #print(y)
     return x,y
