@@ -57,7 +57,7 @@ parser.add_argument('--maxiter', default=12e4, type=int)
 parser.add_argument('--tol', default=0.000001, type=float)
 parser.add_argument('--ae_dim', default='500,500,2000,10', help='delimited list input', type = str)
 parser.add_argument('--dataset_path', default='/home/PERSONALE/francesco.casadei20/EUROMDS/', help='path of EUROMDS dataset', type=str)
-parser.add_argument('--labels', default='MACRO', choices=['MACRO','IPSS','IPSS-R','HDP'], help='true labels to use for clustering')
+parser.add_argument('--labels', default='MACRO', choices=['MACRO','IPSS','IPSS-R'], help='true labels to use for clustering')
 
 
 args = parser.parse_args()
