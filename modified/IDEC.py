@@ -292,7 +292,7 @@ class IDEC(object):
         #    os.makedirs(self.out+'/idec')
         logfile = open(self.out + '/idec_history.csv', 'a+')
         if y is not None:
-            logwriter = csv.DictWriter(logfile, fieldnames=['iter', 'acc', 'nmi', 'ari', 'ami', 'fms', 'L', 'Lc', 'Lr'])
+            logwriter = csv.DictWriter(logfile, fieldnames=['iter', 'acc', 'nmi', 'ari', 'ami', 'fms', 'silh','L', 'Lc', 'Lr'])
             logwriter.writeheader()
         else:
             logwriter = csv.DictWriter(logfile, fieldnames=['iter', 'L', 'Lc', 'Lr'])
