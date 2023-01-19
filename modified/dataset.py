@@ -43,12 +43,15 @@ def load_euromds(path, label):
     if label == 'MACRO':
         y = df_scores.iloc[:,0] #MACRO
         y = np.array(y)
+        y = y-1 #to be in the range 0-3 (instead of 1-4)
     elif label == 'IPSS':
         y = df_scores.iloc[:,2] #IPSS
         y = np.array(y)
+        y = y-1
     elif label == 'IPSS-R':
         y = df_scores.iloc[:,4] #IPSS-R
         y = np.array(y)
+        y = y-1
     #print(y)
     return x,y
 
