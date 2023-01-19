@@ -318,10 +318,11 @@ class IDEC(object):
                     ari = np.round(metrics.adjusted_rand_score(y, y_pred), 5)
                     ami = np.round(metrics.adjusted_mutual_info_score(y, y_pred), 5)
                     fms = np.round(metrics.fowlkes_mallows_score(y, y_pred), 5)
+                    silh = np.round(metrics.silhouette_score(x, y_pred), 5) #silhouette score
                     loss = np.round(loss, 5)
-                    logdict = dict(iter=ite, acc=acc, nmi=nmi, ari=ari, ami=ami, fms=fms, L=loss[0], Lc=loss[1], Lr=loss[2])
+                    logdict = dict(iter=ite, acc=acc, nmi=nmi, ari=ari, ami=ami, fms=fms, silh=silh, L=loss[0], Lc=loss[1], Lr=loss[2])
                     logwriter.writerow(logdict)
-                    print('Iter', ite, ': Acc', acc, ', nmi', nmi, ', ari', ari, ', ami', ami, ', fms', fms, '; loss=', loss)
+                    print('Iter', ite, ': Acc', acc, ', nmi', nmi, ', ari', ari, ', ami', ami, ', fms', fms, ', silh', silh, '; loss=', loss)
                 else: 
                     loss = np.round(loss, 5)
                     logdict = dict(iter=ite, L=loss[0], Lc=loss[1], Lr=loss[2])
