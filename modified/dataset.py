@@ -21,7 +21,7 @@ def load_mnist(binary_threshold=None):
 
 def load_euromds(path, label):
     print('load euromds')
-    df_euromds = pd.read_csv(path+'dataFrame_X_forCox_complete_imputed.csv', delimiter=';') 
+    df_euromds = pd.read_csv(path+'dataFrame_X_forCox_complete_imputed.csv')#, delimiter=';') 
     x = df_euromds.loc[:, 'ASXL1':'Comorbidity']
     x = np.array(x)
     x = x.reshape((x.shape[0], -1))
